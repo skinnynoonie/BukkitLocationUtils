@@ -4,7 +4,6 @@ import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public final class ConcreteLine implements ShapeTemplate {
@@ -42,16 +41,16 @@ public final class ConcreteLine implements ShapeTemplate {
             location.setY(this.end.getY());
             location.setZ(this.end.getZ());
         } else {
-            location.setX(this.currentIteration * this.incrementVector.getX());
-            location.setY(this.currentIteration * this.incrementVector.getY());
-            location.setZ(this.currentIteration * this.incrementVector.getZ());
+            location.setX(this.start.getX() + this.currentIteration * this.incrementVector.getX());
+            location.setY(this.start.getY() + this.currentIteration * this.incrementVector.getY());
+            location.setZ(this.start.getZ() + this.currentIteration * this.incrementVector.getZ());
         }
         this.currentIteration++;
     }
 
     @Override
     public void reset() {
-
+        this.currentIteration = 0;
     }
 
 }
