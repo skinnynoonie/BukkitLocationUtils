@@ -1,41 +1,57 @@
 package me.skinnynoonie.bukkit.locationutils.shape;
 
-import me.skinnynoonie.bukkit.locationutils.exception.IllegalShapePropertiesException;
+import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
-public record ConcreteLine(Vector displacement, double incrementLength) implements ShapeTemplate {
+public final class ConcreteLine implements ShapeTemplate {
 
-    public ConcreteLine(@NotNull Vector displacement, double incrementLength) {
-        Objects.requireNonNull(displacement, "Parameter displacement is null.");
-        if (incrementLength <= 0) {
-            throw new IllegalShapePropertiesException("Property incrementLength must be greater than 0.");
-        }
-        this.displacement = displacement.clone();
-        this.incrementLength = incrementLength;
+    private final Location start;
+    private final Location end;
+    private final Vector incrementVector;
+
+    private final int totalIterations;
+    private int currentIteration;
+
+    public ConcreteLine(@NotNull Location start, @NotNull Location end, double incrementLength) {
+        this.start = start.clone();
+        this.end = end.clone();
+
+        this.incrementVector = start.clone().subtract(end).toVector();
+        this.totalIterations = (int) Math.floor(this.incrementVector.length() / incrementLength) + 1; // +1 because of the end location.
+        this.incrementVector.normalize().multiply(incrementLength);
+
+        this.currentIteration = 0;
     }
 
     @Override
-    public @NotNull List<@NotNull Vector> calculatePositions() {
-        List<Vector> vectors = new ArrayList<>();
-
-        vectors.add(new Vector(0, 0, 0));
-        Vector displacementNormalized = this.displacement.clone().normalize();
-        int iterationsTillDisplacement = (int) Math.floor(displacementNormalized.length() / this.incrementLength);
-        for (int i = 0; i < iterationsTillDisplacement; i++) {
-            vectors.add(displacementNormalized.clone().multiply(i * this.incrementLength));
-        }
-        vectors.add(this.displacement.clone());
-
-        return vectors;
+    public boolean hasNext() {
+        return this.totalIterations > currentIteration;
     }
 
     @Override
-    public @NotNull Vector displacement() {
-        return this.displacement.clone();
+    public void getNext(Location location) {
+        if (!hasNext()) {
+            throw new NoSuchElementException();
+        }
+        if (this.totalIterations - 1 == this.currentIteration) {
+            location.setX(this.end.getX());
+            location.setY(this.end.getY());
+            location.setZ(this.end.getZ());
+        } else {
+            location.setX(this.currentIteration * this.incrementVector.getX());
+            location.setY(this.currentIteration * this.incrementVector.getY());
+            location.setZ(this.currentIteration * this.incrementVector.getZ());
+        }
+        this.currentIteration++;
     }
+
+    @Override
+    public void reset() {
+
+    }
+
 }
