@@ -9,20 +9,20 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class ConcreteLine implements ShapeTemplate {
-    private final Vector endVector;
+    private final Vector displacement;
     private final double incrementLength;
 
     public ConcreteLine(@NotNull Location start, @NotNull Location end, double incrementLength) {
         Preconditions.checkNotNull(start, "Parameter start is null.");
         Preconditions.checkNotNull(end, "Parameter end is null.");
         Preconditions.checkState(incrementLength > 0, "Parameter incrementLength must be greater than 0.");
-        this.endVector = start.clone().subtract(end).toVector();
+        this.displacement = end.clone().subtract(start).toVector();
         this.incrementLength = incrementLength;
     }
 
     @Override
     public @NotNull Iterator<@NotNull Vector> getPositionIterator() {
-        return new ConcreteLinePositionIterator(this.endVector, this.incrementLength);
+        return new ConcreteLinePositionIterator(this.displacement, this.incrementLength);
     }
 
     private static class ConcreteLinePositionIterator implements Iterator<Vector> {
