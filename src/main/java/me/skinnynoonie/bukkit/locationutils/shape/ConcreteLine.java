@@ -21,7 +21,7 @@ public class ConcreteLine implements ShapeTemplate {
     }
 
     @Override
-    public Iterator<Vector> getPositionIterator() {
+    public @NotNull Iterator<@NotNull Vector> getPositionIterator() {
         return new ConcreteLinePositionIterator(this.endVector, this.incrementLength);
     }
 
