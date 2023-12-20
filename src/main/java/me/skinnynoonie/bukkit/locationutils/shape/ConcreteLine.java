@@ -1,56 +1,65 @@
 package me.skinnynoonie.bukkit.locationutils.shape;
 
+import com.google.common.base.Preconditions;
 import org.bukkit.Location;
 import org.bukkit.util.Vector;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-public final class ConcreteLine implements ShapeTemplate {
-
-    private final Location start;
-    private final Location end;
-    private final Vector incrementVector;
-
-    private final int totalIterations;
-    private int currentIteration;
+public class ConcreteLine implements ShapeTemplate {
+    private final Vector endVector;
+    private final double incrementLength;
 
     public ConcreteLine(@NotNull Location start, @NotNull Location end, double incrementLength) {
-        this.start = start.clone();
-        this.end = end.clone();
-
-        this.incrementVector = start.clone().subtract(end).toVector();
-        this.totalIterations = (int) Math.floor(this.incrementVector.length() / incrementLength) + 1; // +1 because of the end location.
-        this.incrementVector.normalize().multiply(incrementLength);
-
-        this.currentIteration = 0;
+        Preconditions.checkNotNull(start, "Parameter start is null.");
+        Preconditions.checkNotNull(end, "Parameter end is null.");
+        Preconditions.checkState(incrementLength > 0, "Parameter incrementLength must be greater than 0.");
+        this.endVector = start.clone().subtract(end).toVector();
+        this.incrementLength = incrementLength;
     }
 
     @Override
-    public boolean hasNext() {
-        return this.totalIterations > currentIteration;
+    public Iterator<Vector> getPositionIterator() {
+        return new ConcreteLinePositionIterator(this.endVector, this.incrementLength);
     }
 
-    @Override
-    public void getNext(Location location) {
-        if (!hasNext()) {
-            throw new NoSuchElementException();
+    private static class ConcreteLinePositionIterator implements Iterator<Vector> {
+        private final int totalIterations;
+        private int currentIteration;
+
+        private final double incrementX;
+        private final double incrementY;
+        private final double incrementZ;
+
+        private ConcreteLinePositionIterator(Vector end, double incrementLength) {
+            double displacementLength = end.length();
+            this.totalIterations = (int) Math.floor(displacementLength / incrementLength);
+            this.incrementX = end.getX() / displacementLength * incrementLength;
+            this.incrementY = end.getY() / displacementLength * incrementLength;
+            this.incrementZ = end.getZ() / displacementLength * incrementLength;
+            this.currentIteration = 0;
         }
-        if (this.totalIterations - 1 == this.currentIteration) {
-            location.setX(this.end.getX());
-            location.setY(this.end.getY());
-            location.setZ(this.end.getZ());
-        } else {
-            location.setX(this.start.getX() + this.currentIteration * this.incrementVector.getX());
-            location.setY(this.start.getY() + this.currentIteration * this.incrementVector.getY());
-            location.setZ(this.start.getZ() + this.currentIteration * this.incrementVector.getZ());
+
+        @Override
+        public boolean hasNext() {
+            return this.currentIteration < totalIterations;
         }
-        this.currentIteration++;
-    }
 
-    @Override
-    public void reset() {
-        this.currentIteration = 0;
-    }
+        @Override
+        public Vector next() {
+            if (!this.hasNext()) {
+                throw new NoSuchElementException();
+            }
 
+            Vector nextPosition = new Vector();
+            nextPosition.setX(this.incrementX * this.currentIteration);
+            nextPosition.setY(this.incrementY * this.currentIteration);
+            nextPosition.setZ(this.incrementZ * this.currentIteration);
+
+            this.currentIteration++;
+            return nextPosition;
+        }
+    }
 }

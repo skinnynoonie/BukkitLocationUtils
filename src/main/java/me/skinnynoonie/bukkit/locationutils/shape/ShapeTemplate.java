@@ -1,13 +1,9 @@
 package me.skinnynoonie.bukkit.locationutils.shape;
 
-import org.bukkit.Location;
+import org.bukkit.util.Vector;
+
+import java.util.Iterator;
 
 public interface ShapeTemplate {
-
-    boolean hasNext();
-
-    void getNext(Location location);
-
-    void reset();
-
+    Iterator<Vector> getPositionIterator();
 }

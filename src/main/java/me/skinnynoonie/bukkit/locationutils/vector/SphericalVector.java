@@ -8,7 +8,6 @@ import static java.lang.Math.sin;
 import static java.lang.Math.toRadians;
 
 public class SphericalVector implements CustomVector {
-
     private double radius;
     private float yaw;
     private float pitch;
@@ -87,5 +86,4 @@ public class SphericalVector implements CustomVector {
     public @NotNull SphericalVector addPitch(float pitch) {
         return setPitch(this.pitch + pitch);
     }
-
 }

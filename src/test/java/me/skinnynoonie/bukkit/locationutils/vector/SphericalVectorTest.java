@@ -1,11 +1,14 @@
 package me.skinnynoonie.bukkit.locationutils.vector;
 
-import junit.framework.TestCase;
 import org.bukkit.Location;
+import org.junit.jupiter.api.Test;
 
-public class SphericalVectorTest extends TestCase {
+import static org.junit.jupiter.api.Assertions.*;
 
-    public void testConversionToBukkitVector() {
+public class SphericalVectorTest {
+
+    @Test
+    void testConversionToBukkitVector() {
         Location location = new Location(null, 0, 0 ,0);
 
         for (int yaw = -94; yaw <= 689; yaw++) {
